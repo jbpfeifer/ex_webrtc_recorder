@@ -173,10 +173,14 @@ else
     def process_result(_, _), do: error()
 
     defp error do
-      raise """
+      # Keep the optional-dependency branch a runtime error without exposing
+      # `none()` as the success type of the public API. The latter makes the
+      # compiler report false-positive unreachable-pattern warnings in the
+      # recorder and converter callers.
+      apply(:erlang, :error, [%RuntimeError{message: """
       S3 support is turned off. Add the `:ex_aws_s3`, `:ex_aws` and `:sweet_xml` dependencies to your project \
       in order to upload recordings to S3-compatible storage\
-      """
+      """}])
     end
   end
 end
